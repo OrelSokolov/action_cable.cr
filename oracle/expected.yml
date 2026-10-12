@@ -1,0 +1,19 @@
+ch_identifier	{id: 1}
+ch_params	{"room" => "general"}
+ch_subscribe_callbacks	["subscribed:general"]
+ch_streams	["chat_general"]
+ch_perform_action	["subscribed:general", "speak:hi"]
+ch_transmit	[{identifier: "{id: 1}", message: {"hello" => "world"}}]
+ch_broadcast_recorded	["{\"a\":1}"]
+ch_unsubscribe	["subscribed:general", "speak:hi", "unsubscribed"]
+ch_streams_after_unsubscribe	[]
+proto_message_types	{welcome: "welcome", disconnect: "disconnect", ping: "ping", confirmation: "confirm_subscription", rejection: "reject_subscription"}
+proto_disconnect_reasons	{unauthorized: "unauthorized", invalid_request: "invalid_request", server_restart: "server_restart", remote: "remote"}
+proto_default_mount_path	/cable
+proto_protocols	["actioncable-v1-json", "actioncable-unsupported"]
+rc_internal_channel	action_cable/ac_1:u_1
+rc_internal_channel_extra_ids	action_cable/ac_1:u_1
+rc_disconnect_payload	["{\"type\":\"disconnect\",\"reconnect\":true}"]
+rc_disconnect_no_reconnect	["{\"type\":\"disconnect\",\"reconnect\":false}"]
+rc_invalid_identifiers	raise:ActionCable::RemoteConnections::RemoteConnection::InvalidIdentifiersError
+periodic_timers_registered	[5.0, 2.5]

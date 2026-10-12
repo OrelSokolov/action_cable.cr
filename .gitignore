@@ -1,0 +1,11 @@
+/lib/
+/.shards/
+/tmp/
+*.dwarf
+/.crystal/
+/lib/
+/.shards/
+/tmp/
+*.dwarf
+/.crystal/
+/action_cable_cr

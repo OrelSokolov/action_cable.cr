@@ -1,0 +1,5 @@
+pubsub_roundtrip	["m1", "m2"]
+pubsub_isolated_channels	["for-a", "for-b"]
+pubsub_no_delivery_without_subscription	true
+pubsub_two_subscribers_same_channel	["fan", "fan"]
+pubsub_broadcast_returns	"0"

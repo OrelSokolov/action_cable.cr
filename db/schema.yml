@@ -1,0 +1,11 @@
+---
+rooms:
+  columns:
+  - name: id
+    type: int8
+    nullable: 'NO'
+    default: nextval('rooms_id_seq'::regclass)
+  - name: name
+    type: varchar
+    nullable: 'YES'
+    default:

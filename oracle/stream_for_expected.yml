@@ -1,0 +1,9 @@
+-- create_table(:rooms)
+   -> 0.0072s
+sf_stream_ar	["support_chat:Z2lkOi8vY3JhaWxzX2FwcC9Sb29tLzQy"]
+sf_stream_plain	["plain:plain-object"]
+sf_stream_unsaved	["unsaved:Z2lkOi8vY3JhaWxzX2FwcC9Sb29tLzc"]
+sf_stream_namespaced	["namespaced:deep:Z2lkOi8vY3JhaWxzX2FwcC9Sb29tLzk"]
+sf_broadcasting_for	"support_chat:Z2lkOi8vY3JhaWxzX2FwcC9Sb29tLzQy"
+sf_broadcasting_plain	"plain:plain-object"
+sf_gid_param	"Z2lkOi8vY3JhaWxzX2FwcC9Sb29tLzQy"
