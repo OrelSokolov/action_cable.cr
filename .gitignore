@@ -9,3 +9,5 @@
 *.dwarf
 /.crystal/
 /action_cable_cr
+/shard.lock
+/shard.override.yml
