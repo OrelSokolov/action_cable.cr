@@ -68,4 +68,29 @@ describe "action_cable websocket protocol" do
     ws.close
     http.close
   end
+
+  it "echoes the selected websocket subprotocol in the 101 handshake" do
+    server = ActionCable::Server.new
+    http = HTTP::Server.new([server.ws_handler])
+    address = http.bind_tcp("127.0.0.1", 0)
+    spawn { http.listen }
+
+    # Клиентские контракты (tungstenite, @rails/actioncable) требуют, чтобы
+    # 101-ответ подтвердил под-протокол из предложенных.
+    socket = TCPSocket.new("127.0.0.1", address.port)
+    socket << "GET /cable HTTP/1.1\r\nHost: 127.0.0.1\r\n" \
+              "Upgrade: websocket\r\nConnection: Upgrade\r\n" \
+              "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\n" \
+              "Sec-WebSocket-Version: 13\r\n" \
+              "Sec-WebSocket-Protocol: actioncable-v1-json, actioncable-unsupported\r\n\r\n"
+    response = String.build do |io|
+      while (line = socket.gets) && !line.strip.empty?
+        io << line
+      end
+    end
+    response.should contain("101")
+    response.should contain("Sec-WebSocket-Protocol: actioncable-v1-json")
+    socket.close
+    http.close
+  end
 end

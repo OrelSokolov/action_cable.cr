@@ -97,8 +97,9 @@ module ActionCable
       header = @request.try(&.headers["Cookie"]?)
       return jar unless header
       header.split(';').each do |part|
-        key, value = part.split('=', 2)
-        raw = value.try(&.strip) || ""
+        # flag-cookie / пустой элемент: без '=' значение пустое (как Rack).
+        key, eq, value = part.partition('=')
+        raw = eq.empty? ? "" : value.strip
         decoded = begin
           URI.decode_www_form(raw)
         rescue
@@ -307,9 +308,15 @@ module ActionCable
         klass = ActionCable.lookup_channel(id_options["channel"].as_s)
         if klass
           channel = klass.new(self, identifier, string_params(id_options))
-          @subscriptions[identifier] = channel
           channel.subscribe_to_channel
-          send_confirmation(identifier)
+          # Rails-семантика: rejected-подписка получает reject_subscription
+          # и не регистрируется (confirm её не маскирует).
+          if channel.rejected?
+            send_rejection(identifier)
+          else
+            @subscriptions[identifier] = channel
+            send_confirmation(identifier)
+          end
         else
           send_rejection(identifier)
         end

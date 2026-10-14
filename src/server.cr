@@ -100,6 +100,16 @@ module ActionCable
         response.headers["Upgrade"] = "websocket"
         response.headers["Connection"] = "Upgrade"
         response.headers["Sec-WebSocket-Accept"] = HTTP::WebSocket::Protocol.key_challenge(key)
+        # Subprotocol handshake (как Faye/WebSocket-сервер Rails): клиент
+        # @rails/actioncable и контракты бенчмарка предлагают
+        # "actioncable-v1-json, actioncable-unsupported" и требуют, чтобы
+        # 101-ответ подтвердил выбранный под-протокол.
+        if offered = request.headers.get?("Sec-WebSocket-Protocol")
+          supported = {"actioncable-v1-json"}
+          selected = offered.flat_map(&.split(',')).map(&.strip)
+            .find { |p| supported.includes?(p) }
+          response.headers["Sec-WebSocket-Protocol"] = selected if selected
+        end
         response.upgrade do |io|
           Connection.new(io, @server, request).run
         end
