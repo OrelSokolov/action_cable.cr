@@ -1,5 +1,5 @@
 name: action_cable_cr
-version: 0.1.0
+version: 0.1.1
 crystal: ">= 1.21.0"
 dependencies:
   active_support_cr:
