@@ -1,5 +1,5 @@
 name: action_cable_cr
-version: 0.1.1
+version: 0.1.2
 crystal: ">= 1.21.0"
 dependencies:
   active_support_cr:
@@ -10,7 +10,7 @@ dependencies:
     version: ~> 0.1.0
   action_pack_cr:
     github: OrelSokolov/action_pack.cr
-    version: ~> 0.1.0
+    version: ">= 0.1.0"
   pg:
     github: will/crystal-pg
   redis:
