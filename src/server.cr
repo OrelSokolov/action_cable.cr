@@ -10,8 +10,8 @@ require "./connection"
 
 module ActionCable
   class Server
-    getter pubsub : SubscriptionAdapter::Base
-    getter mount_path : String
+    attr_reader pubsub : SubscriptionAdapter::Base
+    attr_reader mount_path : String
 
     def initialize(@pubsub : SubscriptionAdapter::Base = SubscriptionAdapter::Async.new,
                    @mount_path : String = Internal::DEFAULT_MOUNT_PATH)

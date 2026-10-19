@@ -9,8 +9,8 @@ module ActionCable
   module SubscriptionAdapter
     class Async < Base
       struct FastSub
-        getter connection : Connection
-        getter identifier : String
+        attr_reader connection : Connection
+        attr_reader identifier : String
 
         def initialize(@connection, @identifier)
         end

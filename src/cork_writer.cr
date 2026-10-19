@@ -38,7 +38,7 @@ module ActionCable
   class CorkWriter
     MAX_BUFFER = 1_048_576 # cork cap; overflow drops (Bun DROPPED analog)
 
-    getter dropped_messages : Int32 = 0
+    attr_reader dropped_messages : Int32 = 0
 
     def initialize(@io : IO, @iolock : Mutex)
       @wlock = Mutex.new

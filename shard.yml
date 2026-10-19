@@ -1,7 +1,10 @@
 name: action_cable_cr
-version: 0.1.2
+version: 0.1.3
 crystal: ">= 1.21.0"
 dependencies:
+  attr_reader_cr:
+    github: OrelSokolov/attr_reader.cr
+    version: ~> 0.1.0
   active_support_cr:
     github: OrelSokolov/active_support.cr
     version: ~> 0.1.0

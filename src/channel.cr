@@ -84,8 +84,8 @@ module ActionCable
     # `[callback, every: seconds]`): a method name on the channel plus
     # the firing interval.
     struct TimerSpec
-      getter method_name : String
-      getter every : Time::Span
+      attr_reader method_name : String
+      attr_reader every : Time::Span
 
       def initialize(@method_name : String, every : Time::Span | Number)
         span = every.is_a?(Time::Span) ? every : every.seconds
@@ -101,9 +101,9 @@ module ActionCable
     end
 
     class Base
-      getter connection : ConnectionAPI
-      getter identifier : String
-      getter params : Hash(String, String)
+      attr_reader connection : ConnectionAPI
+      attr_reader identifier : String
+      attr_reader params : Hash(String, String)
       getter? unsubscribed = false
 
       @streams = {} of String => Proc(String, Nil)

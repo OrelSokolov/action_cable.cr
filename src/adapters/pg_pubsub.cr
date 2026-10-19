@@ -15,8 +15,8 @@ require "digest/sha1"
 module ActionCable
   module SubscriptionAdapter
     class PostgreSQL < Base
-      getter db : DB::Database
-      getter url : String
+      attr_reader db : DB::Database
+      attr_reader url : String
 
       @listen : PG::ListenConnection | Nil
 
