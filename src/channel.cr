@@ -60,6 +60,11 @@ module ActionCable
   # name, every}.
   PERIODIC_TIMER_DECLS = [] of Nil
 
+  # Compile-time registry of on_subscribe/on_unsubscribe declarations
+  # (gem's Channel::Callbacks: set_callback :subscribe, :after / :unsubscribe,
+  # :before). Entries: {class name, kind, method name, unless-condition or nil}.
+  CALLBACK_DECLS = [] of Nil
+
   # Seam implemented by the real connection layer (P0.5) and by test
   # fakes — the same identifiers/transmit/pubsub surface the gem's
   # own unit tests rely on.
@@ -165,6 +170,23 @@ module ActionCable
         __dispatch_action(name, {} of String => String)
       end
 
+      # on_subscribe :method, unless: :condition — runs after #subscribed
+      # (gem's set_callback :subscribe, :after); on_unsubscribe :method —
+      # runs before #unsubscribed (set_callback :unsubscribe, :before).
+      # The unless-guard skips the callback when it returns truthy, e.g.
+      # `unless: :subscription_rejected?` after a rejected subscription.
+      macro on_subscribe(*args, **opts)
+        {% cond = nil %}
+        {% for k, v in opts %}{% if k.stringify == "unless" %}{% cond = v.id.stringify %}{% end %}{% end %}
+        {% ::ActionCable::CALLBACK_DECLS << { @type.name.stringify, "subscribe", args[0].id.stringify, cond } %}
+      end
+
+      macro on_unsubscribe(*args, **opts)
+        {% cond = nil %}
+        {% for k, v in opts %}{% if k.stringify == "unless" %}{% cond = v.id.stringify %}{% end %}{% end %}
+        {% ::ActionCable::CALLBACK_DECLS << { @type.name.stringify, "unsubscribe", args[0].id.stringify, cond } %}
+      end
+
       # Override in subclasses — set up streams here.
       def subscribed : Nil
       end
@@ -175,6 +197,7 @@ module ActionCable
 
       def subscribe_to_channel : Nil
         subscribed
+        __run_subscribe_callbacks
         start_periodic_timers
       end
 
@@ -182,7 +205,16 @@ module ActionCable
         @unsubscribed = true
         stop_periodic_timers
         stop_all_streams
+        __run_unsubscribe_callbacks
         unsubscribed
+      end
+
+      # Overridden per-subclass by end-of-program codegen (below): direct
+      # calls to the declared on_subscribe/on_unsubscribe methods.
+      def __run_subscribe_callbacks : Nil
+      end
+
+      def __run_unsubscribe_callbacks : Nil
       end
 
       private def start_periodic_timers : Nil
@@ -303,6 +335,11 @@ module ActionCable
         @subscription_rejected
       end
 
+      # Gem's name for rejected? (subscription_rejected? in Base).
+      def subscription_rejected? : Bool
+        @subscription_rejected
+      end
+
       private def default_stream_callback : Proc(String, Nil)
         ->(msg : String) do
           payload = begin
@@ -359,6 +396,32 @@ end
           {% end %}
         {% end %}
         __dispatch_action(name, {} of String => String)
+      end
+
+      # on_subscribe/on_unsubscribe runners: direct calls (no `send` in
+      # Crystal), honoring the unless-guard of each declaration.
+      def __run_subscribe_callbacks : Nil
+        {% for d in ::ActionCable::CALLBACK_DECLS %}
+          {% if d[1] == "subscribe" && (d[0] == c.name.stringify || c.ancestors.any? { |a| a.name.stringify == d[0] }) %}
+            {% if d[3] %}
+              {{ d[2].id }} unless {{ d[3].id }}
+            {% else %}
+              {{ d[2].id }}
+            {% end %}
+          {% end %}
+        {% end %}
+      end
+
+      def __run_unsubscribe_callbacks : Nil
+        {% for d in ::ActionCable::CALLBACK_DECLS %}
+          {% if d[1] == "unsubscribe" && (d[0] == c.name.stringify || c.ancestors.any? { |a| a.name.stringify == d[0] }) %}
+            {% if d[3] %}
+              {{ d[2].id }} unless {{ d[3].id }}
+            {% else %}
+              {{ d[2].id }}
+            {% end %}
+          {% end %}
+        {% end %}
       end
 
       def __dispatch_action(action : String, data : Hash(String, String)) : Bool
