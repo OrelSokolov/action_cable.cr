@@ -271,6 +271,44 @@ module ActionCable
         self.class.broadcast_to(broadcastables, payload)
       end
 
+      # broadcast_to @room, action: :start, user: current_user.slice(:id, :name)
+      # — Rails' kwargs form: the payload is built as a JSON object in
+      # kwarg declaration order (NamedTuple preserves it).
+      def broadcast_to(broadcastables : Broadcastable | Array(Broadcastable),
+                       **payload) : Nil
+        json = JSON.build do |j|
+          j.object do
+            payload.each do |key, value|
+              j.field(key.to_s) { __broadcast_value_json(j, value) }
+            end
+          end
+        end
+        self.class.broadcast_to(broadcastables, json)
+      end
+
+      # Value members like PG::Numeric only implement to_json(io : IO), and
+      # JSON::Builder is not an IO — each type is emitted explicitly instead
+      # of dispatching to_json on the union (Object#to_json(io) would route
+      # back through a builder and fail to compile).
+      private def __broadcast_value_json(j : JSON::Builder, value) : Nil
+        case value
+        when String, Symbol then j.string(value.to_s)
+        when Int64, Int32   then j.number(value)
+        when Float64        then j.number(value)
+        when Bool           then j.bool(value)
+        when Nil            then j.null
+        when Time           then j.string(value.to_rfc3339)
+        when JSON::Any      then j.raw(value.to_json)
+        when PG::Numeric    then j.number(value.to_f)
+        when Array          then j.array { value.each { |v| __broadcast_value_json(j, v) } }
+        when Hash           then j.object { value.each { |k, v| j.field(k.to_s) { __broadcast_value_json(j, v) } } }
+        when Bytes          then j.array { value.each { |b| j.number(b) } }
+        else
+          j.string(value.to_s)
+        end
+        nil
+      end
+
       def stream_for(broadcastables : Broadcastable | Array(Broadcastable),
                      callback : Proc(String, Nil)? = nil) : Nil
         stream_from(broadcasting_for(broadcastables), callback)

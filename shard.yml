@@ -1,5 +1,5 @@
 name: action_cable_cr
-version: 0.1.4
+version: 0.1.5
 crystal: ">= 1.21.0"
 dependencies:
   attr_reader_cr:
