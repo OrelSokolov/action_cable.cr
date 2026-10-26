@@ -6,7 +6,6 @@
 #   * periodically registers timers started on subscribe, stopped on
 #     unsubscribe (gem's Channel::PeriodicTimers)
 #
-require "base64"
 require "active_record_cr"
 
 # Deviations from the Ruby API (Crystal type system or port scope):
@@ -20,11 +19,10 @@ module ActionCable
   # Compile-time registry of channel classes, filled via `inherited`.
   CHANNELS = [] of Nil
 
-  # Имя приложения для GlobalID-сериализации записей в именах стримов
-  # (гем: GlobalID.app; default — ENV, иначе "app"). Канонический вид:
-  # base64url("gid://<app>/<Class>/<id>") без паддинга (оракул
-  # stream_for_expected.yml, sf_gid_param).
-  class_property gid_app : String { ENV["CRAILS_APP_NAME"]? || "app" }
+  # Имя приложения для gid-имен стримов — GlobalID.app из active_record_cr
+  # (гем: globalid-railtie; serialize_broadcasting для записей — их
+  # to_gid_param). Канонический вид: base64url("gid://<app>/<Class>/<id>")
+  # без паддинга (оракул stream_for_expected.yml, sf_gid_param).
 
   # Аналог ActionCable.server: сервер по умолчанию для class-level
   # broadcast_to (приложение подменяет своим при монтировании /cable).
@@ -44,8 +42,10 @@ module ActionCable
   def self.serialize_broadcasting(object : Broadcastable) : String
     case object
     when ActiveRecord::Base
-      if (id = object.id)
-        Base64.urlsafe_encode("gid://#{gid_app}/#{object.class.name}/#{id}", padding: false)
+      # gid-имя стрима записи — её to_gid_param (гем: broadcasting_for →
+      # GlobalID), так имена стримов совпадают с turbo_stream_from.
+      if object.id
+        object.to_gid_param
       else
         object.to_s
       end

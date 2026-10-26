@@ -28,7 +28,7 @@ TEST_URL = ENV["AC_TEST_URL"]? ||
 ActiveRecord::Base.establish_connection(TEST_URL)
 ActiveRecord::Base.connection.exec("DELETE FROM rooms")
 
-ActionCable.gid_app = "crails_app"
+GlobalID.app = "crails_app"
 
 class Room < ActiveRecord::Base
 end

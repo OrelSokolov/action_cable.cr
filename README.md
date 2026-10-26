@@ -116,8 +116,8 @@ ActionCable.server.remote_connections.where(current_user: "1").disconnect(reconn
   `INTERNAL` is named constants instead of a heterogeneous hash.
 - `periodically` is a macro DSL (a Proc is unspellable in a class body);
   `every:` accepts `Time::Span` or seconds, `ArgumentError` on ≤ 0.
-- The gid app name comes from `ActionCable.gid_app` (ENV
-  `CRAILS_APP_NAME`, default "app"), not `GlobalID.app`.
+- The gid app name comes from `GlobalID.app` (active_record_cr), record
+  stream names are the record's `to_gid_param`.
 - `broadcast` returns nil, not a PUBLISH recipient count; PG NOTIFY
   payloads are capped at ~8000 bytes.
 

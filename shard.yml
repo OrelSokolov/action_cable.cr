@@ -1,5 +1,5 @@
 name: action_cable_cr
-version: 0.1.5
+version: 0.1.6
 crystal: ">= 1.21.0"
 dependencies:
   attr_reader_cr:
@@ -8,9 +8,10 @@ dependencies:
   active_support_cr:
     github: OrelSokolov/active_support.cr
     version: ~> 0.1.0
+  # serialize_broadcasting использует to_gid_param (active_record_cr 0.1.20)
   active_record_cr:
     github: OrelSokolov/active_record.cr
-    version: ~> 0.1.0
+    version: ~> 0.1.20
   action_pack_cr:
     github: OrelSokolov/action_pack.cr
     version: ">= 0.1.0"

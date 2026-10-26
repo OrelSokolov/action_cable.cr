@@ -306,8 +306,8 @@ channel_name = underscore(имя без Channel-суффикса), неймсп�
   `ActionCable.server` module-акцессор; приложение подменяет своим
   Server при монтировании), `stream_for`/`stop_stream_for`/
   `stream_or_reject_for`; `channel_name` генерится в `macro inherited`.
-  Отклонение: app-имя — `ActionCable.gid_app` (ENV CRAILS_APP_NAME,
-  default "app"), не GlobalID.app.
+  Отклонение снято (0.1.6): app-имя — GlobalID.app из active_record_cr,
+  gid записей — их to_gid_param (как broadcasting_for в геме).
 - `connection.cr`: upgrade-запрос передаётся в Connection
   (`server.cr` CableHandler), `request_cookies` (парсинг Cookie),
   `session` — верификация подписанной cookie фазы C (crails_session,
